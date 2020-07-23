@@ -6,14 +6,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.concurrent.Executors
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.nio.ByteBuffer
@@ -76,6 +74,7 @@ class MainActivity : AppCompatActivity() {
             // Preview
             preview = Preview.Builder()
                 .build()
+            preview?.setSurfaceProvider(viewFinder.createSurfaceProvider())
 
             imageCapture = ImageCapture.Builder()
                 .build()
@@ -88,8 +87,8 @@ class MainActivity : AppCompatActivity() {
                     })
                 }
 
-            // Select back camera
-            val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 // Unbind use cases before rebinding
@@ -98,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                 // Bind use cases to camera
                 camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture, imageAnalyzer)
-                preview?.setSurfaceProvider(viewFinder.createSurfaceProvider(camera?.cameraInfo))
+
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
