@@ -21,10 +21,7 @@ import java.util.concurrent.ExecutorService
 typealias LumaListener = (luma: Double) -> Unit
 
 class MainActivity : AppCompatActivity() {
-    private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
-    private var imageAnalyzer: ImageAnalysis? = null
-    private var camera: Camera? = null
 
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
@@ -72,14 +69,14 @@ class MainActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             // Preview
-            preview = Preview.Builder()
+            var preview = Preview.Builder()
                 .build()
             preview?.setSurfaceProvider(viewFinder.createSurfaceProvider())
 
             imageCapture = ImageCapture.Builder()
                 .build()
 
-            imageAnalyzer = ImageAnalysis.Builder()
+            var imageAnalyzer = ImageAnalysis.Builder()
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
@@ -95,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                 cameraProvider.unbindAll()
 
                 // Bind use cases to camera
-                camera = cameraProvider.bindToLifecycle(
+                cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture, imageAnalyzer)
 
             } catch(exc: Exception) {
@@ -140,11 +137,16 @@ class MainActivity : AppCompatActivity() {
             baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun getOutputDirectory(): File {
+    private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
             File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else filesDir
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
 
     private class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
