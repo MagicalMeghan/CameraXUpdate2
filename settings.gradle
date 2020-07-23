@@ -1,0 +1,2 @@
+rootProject.name='CameraXBugz'
+include ':app'
