@@ -69,14 +69,14 @@ class MainActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             // Preview
-            var preview = Preview.Builder()
+            val preview = Preview.Builder()
                 .build()
             preview?.setSurfaceProvider(viewFinder.createSurfaceProvider())
 
             imageCapture = ImageCapture.Builder()
                 .build()
 
-            var imageAnalyzer = ImageAnalysis.Builder()
+            val imageAnalyzer = ImageAnalysis.Builder()
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
