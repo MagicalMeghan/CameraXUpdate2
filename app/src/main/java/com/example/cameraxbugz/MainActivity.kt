@@ -71,7 +71,9 @@ class MainActivity : AppCompatActivity() {
             // Preview
             val preview = Preview.Builder()
                 .build()
-            preview?.setSurfaceProvider(viewFinder.createSurfaceProvider())
+                .also {
+                    it.setSurfaceProvider(viewFinder.createSurfaceProvider())
+                }
 
             imageCapture = ImageCapture.Builder()
                 .build()
